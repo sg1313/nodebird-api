@@ -118,7 +118,7 @@ router.get('/posts/hashtag/:title', verifyToken, apiLimiter, async (req, res) =>
 
 router.get('/guestbook/my', verifyToken, apiLimiter, (req, res) => {
     Guestbook.findAll()   // post를 guestbook으로 바꿔줘야함,,
-        .then((posts) => {    // 위에있는 post 그대로 복붙해서 갖고왔는데 guestbook에는 where조건이 없기 때문에 자꾸 읽을수가 없었다,,,
+        .then((posts) => {    // 위에있는 post 그대로 복붙해서 갖고왔는데 guestbook에는 where조건이 없기 때문에 자꾸 읽을수가 없었다
             res.json({  // json 형식으로 응답하기
                 code : 200,
                 payload : posts,  // 질의한 내용을 싣는다
@@ -133,6 +133,48 @@ router.get('/guestbook/my', verifyToken, apiLimiter, (req, res) => {
         });
 });
 // 프론트단에도 연결해주자 (nodecat의 라우터/index에 !)
+
+
+// 방명록 삭제 api
+router.get('/guestbooks/delete/:id', verifyToken, (req, res) => {
+    try {
+        Guestbook.destroy({where: {id: req.params.id}})
+            .then((posts) => {
+                res.json({
+                    code: 200,
+                    payload: posts,
+                });
+            })
+    } catch (error) {
+                console.error(error);
+                return res.status(500).json({
+                    code: 500,
+                    message : '서버 에러',
+                });
+            }
+});
+
+
+// 방명록 수정 api ㄴ
+router.get('/guestbooks/update/:id', verifyToken, (req, res) => {
+    Guestbook.findOne({where: {id: req.params.id}})  // findAll 이 아니라 findOne 으로 수정해줘야함
+        .then((posts) => {
+            res.json({
+                code : 200,
+                payload : posts,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).json({
+                code: 500,
+                message : '서버 에러',
+            });
+        });
+});
+
+
+
 
 
 // 방명록 등록하기
@@ -159,6 +201,32 @@ router.post('/guestbooks/create', verifyToken, async (req, res) => {
         })
     }
 })
+
+
+router.post('/guestbooks/update', verifyToken, async (req, res) => {
+    // const {name, email, content) = req.body;
+    try {  // 등록한 방명록 데이터 guestbooks 테이블에 넣기 !!
+        const guestbook = await Guestbook.update({
+            'nick': req.body.data.name,
+            'email': req.body.data.email,
+            'content': req.body.data.content,
+        },{
+            where : { id : req.body.data.id}}
+        );
+        res.json({
+            code: 200,
+            payload: "수정완료",
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: '서버 에러'
+        })
+    }
+})
+
 
 
 
