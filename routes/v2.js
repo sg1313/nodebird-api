@@ -183,7 +183,7 @@ router.post('/guestbooks/create', verifyToken, async (req, res) => {
     console.log("444444444->", req.body);
     try {  // 등록한 방명록 데이터 guestbooks 테이블에 넣기 !!
         const guestbook = await Guestbook.create({
-            'nick': req.body.data.name,
+            'nick': req.body.data.nick,
             'email': req.body.data.email,
             'content': req.body.data.content,
         });
@@ -204,14 +204,15 @@ router.post('/guestbooks/create', verifyToken, async (req, res) => {
 
 
 router.post('/guestbooks/update', verifyToken, async (req, res) => {
-    // const {name, email, content) = req.body;
-    try {  // 등록한 방명록 데이터 guestbooks 테이블에 넣기 !!
+    // const {name, email, content} = req.body;
+    console.log('id??------>', req.body.data.id);
+    try {  // 수정 방명록 데이터 한guestbooks 테이블에 넣기 !!
         const guestbook = await Guestbook.update({
             'nick': req.body.data.name,
             'email': req.body.data.email,
             'content': req.body.data.content,
         },{
-            where : { id : req.body.data.id}}
+            where : { 'id' : parseInt(req.body.data.id)}}
         );
         res.json({
             code: 200,
